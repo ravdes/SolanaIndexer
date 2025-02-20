@@ -38,6 +38,40 @@ docker-compose up
 ```
 This will build the Docker image, pull any necessary dependencies, and start the application.
 
+Upon startup, the application will simultaneously monitor both of the things:
+- New coin creations on Pumpfun
+- Migrations from Pumpfun to Raydium
+
+### Database structure
+
+**Pumpfun created coin**  structure in database
+```go
+type PumpfunCoin struct {
+	ID                     primitive.ObjectID `bson:"_id,omitempty"`
+	CreatedAt              string             `bson:"createdAt"`
+	CoinAddress            string             `bson:"coinAddress"`
+	Creator                string             `bson:"creator"`
+	BondingCurve           string             `bson:"bondingCurve"`
+	AssociatedBondingCurve string             `bson:"associatedBondingCurve"`
+	Block                  uint64             `bson:"block"`
+	Signature              string             `bson:"signature"`
+}
+```
+**Raydium migrated coin** structure in database
+```go
+type RaydiumCoin struct {
+	ID          primitive.ObjectID `bson:"_id,omitempty"`
+	MigratedAt  string             `bson:"migratedAt"`
+	CoinAddress string             `bson:"coinAddress"`
+	PoolId      string             `bson:"poolId"`
+	Pool1       string             `bson:"pool1"`
+	Pool2       string             `bson:"pool2"`
+	Block       uint64             `bson:"block"`
+	Signature   string             `bson:"signature"`
+}
+```
+
+
 ### Features
 
 - Monitors new coin creation on Pumpfun.
@@ -46,7 +80,10 @@ This will build the Docker image, pull any necessary dependencies, and start the
 - Fully Dockerized for easy setup and deployment.
 - Real-time monitoring using the Yellowstone gRPC service.
 
-## Demo 
+## Demo
 
 
-Feel free to fork this repository and extend it to suit your needs.
+
+## Usage
+
+Feel free to fork this repository and extend it to suit your needs.  
