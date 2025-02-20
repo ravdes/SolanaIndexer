@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongo_db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodata:/data/db
+
+
+  indexer:
+    image: golang:latest
+    container_name: golang_indexer
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: go run cmd/solanaindexer/main.go
+    depends_on:
+      - mongodb
+    environment:
+      - MONGO_USERNAME=${MONGO_USERNAME}
+      - MONGO_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_DB_NAME=${MONGO_DB_NAME}
+      - GRPC=${GRPC}
+volumes:
+  mongodata:
+    driver: local
