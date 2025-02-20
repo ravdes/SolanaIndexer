@@ -16,8 +16,8 @@ import (
 )
 
 type RaydiumIndexer struct {
-	envVariables      *utils.Config
-	raydiumRepository repository.CoinRepository
+	envVariables *utils.Config
+	repository.CoinRepository
 }
 
 func (r *RaydiumIndexer) StartRaydiumIndexer() error {
@@ -88,7 +88,7 @@ func (r *RaydiumIndexer) StartRaydiumIndexer() error {
 					Signature:   signature,
 				}
 
-				err := r.raydiumRepository.InsertCoin(ctx, coinData)
+				err := r.InsertCoin(ctx, coinData)
 				if err != nil {
 					logger.Errorf("Error on inserting to database %v", err)
 					return err
@@ -102,5 +102,5 @@ func (r *RaydiumIndexer) StartRaydiumIndexer() error {
 func NewRaydiumIndexer() *RaydiumIndexer {
 	envVariables := utils.LoadEnvVariables()
 	coinRepository := repository.NewIndexerRepository("raydiumIndexer")
-	return &RaydiumIndexer{envVariables: envVariables, raydiumRepository: coinRepository}
+	return &RaydiumIndexer{envVariables: envVariables, CoinRepository: coinRepository}
 }

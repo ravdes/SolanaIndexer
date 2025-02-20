@@ -15,14 +15,9 @@ import (
 	"time"
 )
 
-type InstructionData struct {
-	Amount     uint64
-	MaxSolCost uint64
-}
-
 type PumpfunIndexer struct {
-	envVariables      *utils.Config
-	pumpfunRepository repository.CoinRepository
+	envVariables *utils.Config
+	repository.CoinRepository
 }
 
 func (p *PumpfunIndexer) StartPumpfunIndexer() error {
@@ -94,7 +89,7 @@ func (p *PumpfunIndexer) StartPumpfunIndexer() error {
 					Signature:              signature,
 				}
 
-				err = p.pumpfunRepository.InsertCoin(ctx, coinData)
+				err = p.InsertCoin(ctx, coinData)
 				if err != nil {
 					logger.Errorf("Error inserting coin into database: %v", err)
 					return err
@@ -108,5 +103,5 @@ func (p *PumpfunIndexer) StartPumpfunIndexer() error {
 func NewPumpfunIndexer() *PumpfunIndexer {
 	envVariables := utils.LoadEnvVariables()
 	coinRepository := repository.NewIndexerRepository("pumpfunIndexer")
-	return &PumpfunIndexer{envVariables: envVariables, pumpfunRepository: coinRepository}
+	return &PumpfunIndexer{envVariables: envVariables, CoinRepository: coinRepository}
 }
