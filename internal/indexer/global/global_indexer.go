@@ -4,6 +4,7 @@ import (
 	"solanaindexer/internal/indexer/pumpfun"
 	"solanaindexer/internal/indexer/raydium"
 	"solanaindexer/internal/logger"
+	"solanaindexer/internal/utils"
 )
 
 type GlobalIndexer struct {
@@ -28,9 +29,9 @@ func (g *GlobalIndexer) StartIndexer() {
 	}()
 }
 
-func StartGlobalIndexer() {
-	pfIndexer := pumpfun.NewPumpfunIndexer()
-	rdIndexer := raydium.NewRaydiumIndexer()
+func StartGlobalIndexer(config *utils.Config) {
+	pfIndexer := pumpfun.NewPumpfunIndexer(config)
+	rdIndexer := raydium.NewRaydiumIndexer(config)
 	globalIndexer := GlobalIndexer{pumpfunIndexer: pfIndexer, raydiumIndexer: rdIndexer}
 	globalIndexer.StartIndexer()
 }

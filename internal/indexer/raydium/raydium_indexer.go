@@ -12,16 +12,17 @@ import (
 	"solanaindexer/internal/geyser/proto"
 	"solanaindexer/internal/logger"
 	"solanaindexer/internal/utils"
+	"strings"
 	"time"
 )
 
 type RaydiumIndexer struct {
-	envVariables *utils.Config
+	*utils.Config
 	repository.CoinRepository
 }
 
 func (r *RaydiumIndexer) StartRaydiumIndexer() error {
-	conn, err := geyser.StartGeyser(r.envVariables.Grpc)
+	conn, err := geyser.StartGeyser(r.Grpc)
 	if err != nil {
 		logger.Errorf("Error %v", err)
 		return err
@@ -66,17 +67,18 @@ func (r *RaydiumIndexer) StartRaydiumIndexer() error {
 		}
 
 		if resp != nil && resp.GetTransaction() != nil {
-			accountKeys := resp.GetTransaction().Transaction.Transaction.Message.AccountKeys
-			logMessages := resp.GetTransaction().GetTransaction().GetMeta().GetLogMessages()
-			poolMigrated := utils.ContainsSubstring(logMessages, "initialize2: InitializeInstruction2")
+			parsedTx := resp.GetTransaction()
+			accountKeys := parsedTx.Transaction.Transaction.Message.AccountKeys
+			logMessages := parsedTx.GetTransaction().GetMeta().GetLogMessages()
+			poolMigrated := strings.Contains(logMessages[7], "initialize2: InitializeInstruction2")
 
 			if poolMigrated {
 				coinAddress := base58.Encode(accountKeys[18])
 				poolId := base58.Encode(accountKeys[2])
 				pool1 := base58.Encode(accountKeys[5])
 				pool2 := base58.Encode(accountKeys[6])
-				block := resp.GetTransaction().Slot
-				signature := base58.Encode(resp.GetTransaction().GetTransaction().Signature)
+				block := parsedTx.Slot
+				signature := base58.Encode(parsedTx.GetTransaction().Signature)
 
 				coinData := models.RaydiumCoin{
 					MigratedAt:  time.Now().Format("Jan 2 15:04:05.00"),
@@ -99,8 +101,7 @@ func (r *RaydiumIndexer) StartRaydiumIndexer() error {
 	}
 }
 
-func NewRaydiumIndexer() *RaydiumIndexer {
-	envVariables := utils.LoadEnvVariables()
+func NewRaydiumIndexer(config *utils.Config) *RaydiumIndexer {
 	coinRepository := repository.NewIndexerRepository("raydiumIndexer")
-	return &RaydiumIndexer{envVariables: envVariables, CoinRepository: coinRepository}
+	return &RaydiumIndexer{Config: config, CoinRepository: coinRepository}
 }

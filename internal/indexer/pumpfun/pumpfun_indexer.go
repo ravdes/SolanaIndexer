@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/mr-tron/base58"
 	"io"
+	"slices"
 	"solanaindexer/internal/constants"
 	"solanaindexer/internal/db/models"
 	"solanaindexer/internal/db/repository"
@@ -16,12 +17,12 @@ import (
 )
 
 type PumpfunIndexer struct {
-	envVariables *utils.Config
+	*utils.Config
 	repository.CoinRepository
 }
 
 func (p *PumpfunIndexer) StartPumpfunIndexer() error {
-	conn, err := geyser.StartGeyser(p.envVariables.Grpc)
+	conn, err := geyser.StartGeyser(p.Grpc)
 	if err != nil {
 		logger.Errorf("Error starting Geyser: %v", err)
 		return err
@@ -67,17 +68,18 @@ func (p *PumpfunIndexer) StartPumpfunIndexer() error {
 		}
 
 		if resp != nil && resp.GetTransaction() != nil {
-			accountKeys := resp.GetTransaction().Transaction.Transaction.Message.AccountKeys
-			logMessages := resp.GetTransaction().GetTransaction().GetMeta().GetLogMessages()
-			newCoinCreated := utils.ContainsSubstring(logMessages, "InitializeMint2")
+			parsedTx := resp.GetTransaction()
+			accountKeys := parsedTx.Transaction.Transaction.Message.AccountKeys
+			logMessages := parsedTx.GetTransaction().GetMeta().GetLogMessages()
+			newCoinCreated := slices.Contains(logMessages, "Program log: Instruction: InitializeMint2")
 
 			if newCoinCreated {
 				creator := base58.Encode(accountKeys[0])
 				coinAddress := base58.Encode(accountKeys[1])
 				bondingCurve := base58.Encode(accountKeys[2])
 				associatedBondingCurve := base58.Encode(accountKeys[3])
-				block := resp.GetTransaction().Slot
-				signature := base58.Encode(resp.GetTransaction().GetTransaction().Signature)
+				block := parsedTx.Slot
+				signature := base58.Encode(parsedTx.GetTransaction().Signature)
 
 				coinData := models.PumpfunCoin{
 					CreatedAt:              time.Now().Format("Jan 2 15:04:05.00"),
@@ -100,8 +102,7 @@ func (p *PumpfunIndexer) StartPumpfunIndexer() error {
 	}
 }
 
-func NewPumpfunIndexer() *PumpfunIndexer {
-	envVariables := utils.LoadEnvVariables()
+func NewPumpfunIndexer(config *utils.Config) *PumpfunIndexer {
 	coinRepository := repository.NewIndexerRepository("pumpfunIndexer")
-	return &PumpfunIndexer{envVariables: envVariables, CoinRepository: coinRepository}
+	return &PumpfunIndexer{Config: config, CoinRepository: coinRepository}
 }

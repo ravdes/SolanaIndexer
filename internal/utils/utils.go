@@ -4,7 +4,6 @@ import (
 	"github.com/joho/godotenv"
 	"os"
 	"solanaindexer/internal/logger"
-	"strings"
 )
 
 type Config struct {
@@ -35,13 +34,4 @@ func LoadEnvVariables() *Config {
 		DbPassword: dbPassword,
 		Grpc:       grpc,
 	}
-}
-
-func ContainsSubstring(slice []string, substring string) bool {
-	for _, str := range slice {
-		if strings.Contains(str, substring) {
-			return true
-		}
-	}
-	return false
 }
