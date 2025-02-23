@@ -9,7 +9,7 @@ import (
 
 var Logger *zap.SugaredLogger
 
-func Init() {
+func InitializeLogger() {
 	var err error
 	config := zap.NewDevelopmentConfig()
 	encoderConfig := zap.NewDevelopmentEncoderConfig()
@@ -17,9 +17,9 @@ func Init() {
 	encoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout("Jan 2 15:04:05.00")
 	encoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 
-	encoderConfig.EncodeCaller = zapcore.CallerEncoder(func(caller zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
+	encoderConfig.EncodeCaller = func(caller zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
 		enc.AppendString(filepath.Base(caller.FullPath()))
-	})
+	}
 
 	config.EncoderConfig = encoderConfig
 

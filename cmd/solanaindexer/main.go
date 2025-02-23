@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	logger.Init()
+	logger.InitializeLogger()
 	envVariables := utils.LoadEnvVariables()
 	err := config.ConnectDB()
 	if err != nil {
