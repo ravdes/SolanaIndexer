@@ -39,8 +39,8 @@ func (r *RaydiumIndexer) StartRaydiumIndexer() error {
 			Vote:            &f,
 			Failed:          &f,
 			Signature:       nil,
-			AccountInclude:  []string{constants.PumpFunMigration.String()},
-			AccountRequired: []string{constants.RaydiumV4Contract.String()},
+			AccountInclude:  []string{constants.PumpFunMigration},
+			AccountRequired: []string{constants.RaydiumV4Contract},
 		}}, Commitment: &commitmentLevel}
 
 	ctx := context.Background()

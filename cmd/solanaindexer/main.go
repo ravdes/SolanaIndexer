@@ -14,7 +14,6 @@ func main() {
 	if err != nil {
 		logger.Errorf("Error while connecting to database: %v", err)
 	}
-	ch := make(chan int)
 	global.StartGlobalIndexer(envVariables)
-	<-ch
+	select {}
 }

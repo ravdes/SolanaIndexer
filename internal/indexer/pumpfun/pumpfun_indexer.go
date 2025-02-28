@@ -39,7 +39,7 @@ func (p *PumpfunIndexer) StartPumpfunIndexer() error {
 			Vote:            &f,
 			Failed:          &f,
 			Signature:       nil,
-			AccountInclude:  []string{constants.PumpFunContract.String()},
+			AccountInclude:  []string{constants.PumpFunContract},
 			AccountExclude:  nil,
 			AccountRequired: nil,
 		}}, Commitment: &commitmentLevel}
